@@ -1,8 +1,6 @@
 import { App, Editor, MarkdownView, Modal, Notice, Plugin } from 'obsidian';
 import { DEFAULT_SETTINGS, AnkiLinkSettings, AnkiLinkSettingTab } from "./settings";
 
-// Remember to rename these classes and interfaces!
-
 export default class AnkiLink extends Plugin {
 	settings: AnkiLinkSettings;
 
