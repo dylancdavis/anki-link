@@ -34,29 +34,96 @@ export class AnkiView extends ItemView {
 	}
 
 	async testAnkiConnect() {
-		try {
-			const response = await requestUrl({
-				url: "http://localhost:8765",
-				method: "POST",
-				body: JSON.stringify({
-					action: "version",
-					version: 6
-				}),
-				headers: {
-					"Content-Type": "application/json"
-				}
-			});
+		// Get the active file
+		const activeFile = this.app.workspace.getActiveFile();
+		if (!activeFile) {
+			new Notice("No active note found");
+			return;
+		}
 
-			const data = response.json as { result?: number; error?: string };
+		// Read the file content
+		const content = await this.app.vault.read(activeFile);
 
-			if (data.error) {
-				new Notice(`AnkiConnect error: ${data.error}`);
-			} else {
-				new Notice(`AnkiConnect is running! Version: ${data.result ?? "unknown"}`);
+		// Search for anki:// URIs - looking for patterns like anki://note/123 or anki://card/456
+		const ankiUriRegex = /anki:\/\/(note|card)\/(\d+)/g;
+		const matches = [...content.matchAll(ankiUriRegex)];
+
+		if (matches.length === 0) {
+			new Notice("No Anki URIs found in current note");
+			return;
+		}
+
+		// Extract card IDs and note IDs
+		const cardIds: number[] = [];
+		const noteIds: number[] = [];
+
+		for (const match of matches) {
+			const [, type, id] = match;
+			if (type === "card") {
+				cardIds.push(Number(id));
+			} else if (type === "note") {
+				noteIds.push(Number(id));
 			}
-		} catch (error) {
-			const errorMessage = error instanceof Error ? error.message : String(error);
-			new Notice(`Failed to connect to AnkiConnect: ${errorMessage}`);
+		}
+
+		// Query AnkiConnect for card info if we have card IDs
+		if (cardIds.length > 0) {
+			const request = {
+				action: "cardsInfo",
+				version: 6,
+				params: {
+					cards: cardIds
+				}
+			};
+
+			new Notice(`Sending: ${JSON.stringify(request, null, 2)}`);
+
+			try {
+				const response = await requestUrl({
+					url: "http://localhost:8765",
+					method: "POST",
+					body: JSON.stringify(request),
+					headers: {
+						"Content-Type": "application/json"
+					}
+				});
+
+				const data = response.json as { result?: unknown; error?: string };
+				new Notice(`Received: ${JSON.stringify(data, null, 2)}`);
+			} catch (error) {
+				const errorMessage = error instanceof Error ? error.message : String(error);
+				new Notice(`Failed to connect: ${errorMessage}`);
+			}
+		}
+
+		// Query AnkiConnect for note info if we have note IDs
+		if (noteIds.length > 0) {
+			const request = {
+				action: "notesInfo",
+				version: 6,
+				params: {
+					notes: noteIds
+				}
+			};
+
+			new Notice(`Sending: ${JSON.stringify(request, null, 2)}`);
+
+			try {
+				const response = await requestUrl({
+					url: "http://localhost:8765",
+					method: "POST",
+					body: JSON.stringify(request),
+					headers: {
+						"Content-Type": "application/json"
+					}
+				});
+
+				const data = response.json as { result?: unknown; error?: string };
+				new Notice(`Received: ${JSON.stringify(data, null, 2)}`);
+			} catch (error) {
+				const errorMessage = error instanceof Error ? error.message : String(error);
+				new Notice(`Failed to connect: ${errorMessage}`);
+			}
 		}
 	}
 
