@@ -143,7 +143,7 @@ export class AnkiView extends ItemView {
 		// TODO: Handle note IDs by getting their cards
 
 		// Render the cards with info about not found cards
-		this.renderCards(allCards, notFoundCardIds.length);
+		this.renderCards(allCards, notFoundCardIds);
 	}
 
 	renderPlaceholder(message: string) {
@@ -156,13 +156,13 @@ export class AnkiView extends ItemView {
 		});
 	}
 
-	renderCards(cards: AnkiCard[], notFoundCount: number) {
+	renderCards(cards: AnkiCard[], notFoundCardIds: number[]) {
 		if (!this.cardsContainer) return;
 
 		// Clear existing cards
 		this.cardsContainer.empty();
 
-		if (cards.length === 0 && notFoundCount === 0) {
+		if (cards.length === 0 && notFoundCardIds.length === 0) {
 			this.cardsContainer.createEl("p", { text: "No cards found" });
 			return;
 		}
@@ -193,14 +193,32 @@ export class AnkiView extends ItemView {
 			});
 		}
 
-		// Show message if some cards weren't found
-		if (notFoundCount > 0) {
-			const notFoundText = notFoundCount === 1
-				? "Could not find 1 card."
-				: `Could not find ${notFoundCount} cards.`;
-			this.cardsContainer.createEl("div", {
+		// Show dropdown for cards that weren't found
+		if (notFoundCardIds.length > 0) {
+			const notFoundContainer = this.cardsContainer.createEl("div", { cls: "anki-not-found-container" });
+
+			const notFoundText = notFoundCardIds.length === 1
+				? "Could not find 1 card"
+				: `Could not find ${notFoundCardIds.length} cards`;
+
+			const toggleHeader = notFoundContainer.createEl("div", {
 				text: notFoundText,
-				cls: "anki-not-found-message"
+				cls: "anki-not-found-toggle"
+			});
+
+			const contentEl = notFoundContainer.createEl("div", { cls: "anki-not-found-content anki-not-found-content-hidden" });
+
+			// Add list of card IDs
+			const listEl = contentEl.createEl("ul", { cls: "anki-not-found-list" });
+			for (const cardId of notFoundCardIds) {
+				listEl.createEl("li", { text: `Card ID: ${cardId}` });
+			}
+
+			// Toggle visibility on click
+			toggleHeader.addEventListener("click", () => {
+				const isHidden = contentEl.hasClass("anki-not-found-content-hidden");
+				contentEl.toggleClass("anki-not-found-content-hidden", !isHidden);
+				toggleHeader.toggleClass("anki-not-found-toggle-open", isHidden);
 			});
 		}
 	}
