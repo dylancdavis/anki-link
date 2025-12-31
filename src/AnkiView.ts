@@ -12,7 +12,7 @@ export class AnkiView extends ItemView {
 	}
 
 	getDisplayText() {
-		return "View Anki cards";
+		return "Anki cards";
 	}
 
 	getIcon() {

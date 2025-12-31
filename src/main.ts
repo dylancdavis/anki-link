@@ -15,7 +15,7 @@ export default class AnkiLink extends Plugin {
 		);
 
 		// Add ribbon icon to open the view
-		this.addRibbonIcon("layers", "Open Anki Cards", () => {
+		this.addRibbonIcon("layers", "View Anki cards", () => {
 			this.activateView();
 		});
 
