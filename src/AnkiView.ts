@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, Notice, requestUrl } from "obsidian";
+import { ItemView, WorkspaceLeaf, Notice, requestUrl, sanitizeHTMLToDom } from "obsidian";
 
 export const VIEW_TYPE_ANKI = "anki-link-view";
 
@@ -184,7 +184,10 @@ export class AnkiView extends ItemView {
 			sortedFields.forEach(([fieldName, fieldData], index) => {
 				const fieldEl = fieldsEl.createEl("div", { cls: "anki-card-field" });
 				fieldEl.createEl("div", { text: fieldName, cls: "anki-card-field-name" });
-				fieldEl.createEl("div", { text: fieldData.value, cls: "anki-card-field-value" });
+
+				// Render HTML content safely
+				const valueEl = fieldEl.createEl("div", { cls: "anki-card-field-value" });
+				valueEl.appendChild(sanitizeHTMLToDom(fieldData.value));
 
 				// Add horizontal ruler between fields (but not after the last one)
 				if (index < sortedFields.length - 1) {
