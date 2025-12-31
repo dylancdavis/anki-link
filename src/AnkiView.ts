@@ -31,9 +31,8 @@ export class AnkiView extends ItemView {
 	}
 
 	async onOpen() {
-		const container = this.containerEl.children[1];
+		const container = this.containerEl.children[1] as HTMLElement;
 		container.empty();
-		container.createEl("h6", { text: "Anki cards", cls: "anki-view-header" });
 
 		// Create container for cards
 		this.cardsContainer = container.createEl("div", { cls: "anki-cards-container" });
@@ -173,7 +172,8 @@ export class AnkiView extends ItemView {
 
 			// Add card metadata header
 			const metaEl = cardEl.createEl("div", { cls: "anki-card-meta" });
-			metaEl.createEl("span", { text: `${card.deckName} - ${card.modelName}`, cls: "anki-card-deck" });
+			metaEl.createEl("span", { text: card.deckName, cls: "anki-card-deck" });
+			metaEl.createEl("span", { text: card.modelName, cls: "anki-card-model" });
 
 			// Add fields
 			const fieldsEl = cardEl.createEl("div", { cls: "anki-card-fields" });
