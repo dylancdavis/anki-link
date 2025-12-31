@@ -6,3 +6,68 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+
+.anki-button-container {
+	margin-bottom: 1em;
+}
+
+.anki-button-container button {
+	padding: 0.5em 1em;
+	cursor: pointer;
+}
+
+.anki-cards-container {
+	display: flex;
+	flex-direction: column;
+	gap: 1em;
+}
+
+.anki-card {
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	padding: 1em;
+	background-color: var(--background-primary);
+}
+
+.anki-card-meta {
+	margin-bottom: 0.8em;
+	padding-bottom: 0.5em;
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.anki-card-deck {
+	font-size: 0.9em;
+	color: var(--text-muted);
+	font-weight: 500;
+}
+
+.anki-card-fields {
+	display: flex;
+	flex-direction: column;
+}
+
+.anki-card-field {
+	display: flex;
+	flex-direction: column;
+}
+
+.anki-card-field-name {
+	font-size: 0.85em;
+	font-weight: 600;
+	color: var(--text-muted);
+	margin-bottom: 0.3em;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.anki-card-field-value {
+	color: var(--text-normal);
+	margin-bottom: 0.5em;
+	white-space: pre-wrap;
+}
+
+.anki-card-field-separator {
+	margin: 0.8em 0;
+	border: none;
+	border-top: 1px solid var(--background-modifier-border);
+}
