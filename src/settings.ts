@@ -1,24 +1,24 @@
-import {App, PluginSettingTab, Setting} from "obsidian";
-import MyPlugin from "./main";
+import { App, PluginSettingTab, Setting } from "obsidian";
+import AnkiLink from "./main";
 
-export interface MyPluginSettings {
+export interface AnkiLinkSettings {
 	mySetting: string;
 }
 
-export const DEFAULT_SETTINGS: MyPluginSettings = {
+export const DEFAULT_SETTINGS: AnkiLinkSettings = {
 	mySetting: 'default'
 }
 
-export class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+export class AnkiLinkSettingTab extends PluginSettingTab {
+	plugin: AnkiLink;
 
-	constructor(app: App, plugin: MyPlugin) {
+	constructor(app: App, plugin: AnkiLink) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
 
 	display(): void {
-		const {containerEl} = this;
+		const { containerEl } = this;
 
 		containerEl.empty();
 
