@@ -35,22 +35,25 @@ export class AnkiView extends ItemView {
 		container.empty();
 		container.createEl("h4", { text: "Anki cards" });
 
-		// Add fetch button
-		const buttonContainer = container.createEl("div", { cls: "anki-button-container" });
-		const fetchButton = buttonContainer.createEl("button", { text: "Fetch cards" });
-		fetchButton.addEventListener("click", () => {
-			void this.fetchAndDisplayCards();
-		});
-
 		// Create container for cards
 		this.cardsContainer = container.createEl("div", { cls: "anki-cards-container" });
+
+		// Register event listener for file changes
+		this.registerEvent(
+			this.app.workspace.on("file-open", () => {
+				void this.fetchAndDisplayCards();
+			})
+		);
+
+		// Initial fetch for currently active file
+		void this.fetchAndDisplayCards();
 	}
 
 	async fetchAndDisplayCards() {
 		// Get the active file
 		const activeFile = this.app.workspace.getActiveFile();
 		if (!activeFile) {
-			new Notice("No active note found");
+			this.renderPlaceholder("No note is currently open.");
 			return;
 		}
 
@@ -62,7 +65,7 @@ export class AnkiView extends ItemView {
 		const matches = [...content.matchAll(ankiUriRegex)];
 
 		if (matches.length === 0) {
-			new Notice("No Anki URIs found in current note.");
+			this.renderPlaceholder("No Anki links found in this note.");
 			return;
 		}
 
@@ -91,8 +94,6 @@ export class AnkiView extends ItemView {
 				}
 			};
 
-			new Notice(`Sending: ${JSON.stringify(request, null, 2)}`);
-
 			try {
 				const response = await requestUrl({
 					url: "http://localhost:8765",
@@ -104,14 +105,20 @@ export class AnkiView extends ItemView {
 				});
 
 				const data = response.json as { result?: AnkiCard[]; error?: string };
-				new Notice(`Received: ${JSON.stringify(data, null, 2)}`);
+
+				if (data.error) {
+					new Notice(`AnkiConnect error: ${data.error}`);
+					this.renderPlaceholder(`Error from AnkiConnect: ${data.error}`);
+					return;
+				}
 
 				if (data.result) {
 					allCards.push(...data.result);
 				}
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : String(error);
-				new Notice(`Failed to connect: ${errorMessage}`);
+				new Notice(`Failed to connect to AnkiConnect: ${errorMessage}`);
+				this.renderPlaceholder("Failed to connect to AnkiConnect. Make sure Anki is running with the AnkiConnect add-on installed.");
 				return;
 			}
 		}
@@ -122,6 +129,16 @@ export class AnkiView extends ItemView {
 
 		// Render the cards
 		this.renderCards(allCards);
+	}
+
+	renderPlaceholder(message: string) {
+		if (!this.cardsContainer) return;
+
+		this.cardsContainer.empty();
+		this.cardsContainer.createEl("p", {
+			text: message,
+			cls: "anki-placeholder"
+		});
 	}
 
 	renderCards(cards: AnkiCard[]) {

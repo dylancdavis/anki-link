@@ -7,19 +7,17 @@ If your plugin does not need CSS, delete this file.
 
 */
 
-.anki-button-container {
-	margin-bottom: 1em;
-}
-
-.anki-button-container button {
-	padding: 0.5em 1em;
-	cursor: pointer;
-}
-
 .anki-cards-container {
 	display: flex;
 	flex-direction: column;
 	gap: 1em;
+}
+
+.anki-placeholder {
+	color: var(--text-muted);
+	font-style: italic;
+	text-align: center;
+	padding: 2em 1em;
 }
 
 .anki-card {
