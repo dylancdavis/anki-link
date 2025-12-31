@@ -33,7 +33,7 @@ export class AnkiView extends ItemView {
 	async onOpen() {
 		const container = this.containerEl.children[1];
 		container.empty();
-		container.createEl("h4", { text: "Anki cards" });
+		container.createEl("h6", { text: "Anki cards", cls: "anki-view-header" });
 
 		// Create container for cards
 		this.cardsContainer = container.createEl("div", { cls: "anki-cards-container" });
