@@ -83,6 +83,7 @@ export class AnkiView extends ItemView {
 		}
 
 		const allCards: AnkiCard[] = [];
+		const notFoundCardIds: number[] = [];
 
 		// Query AnkiConnect for card info if we have card IDs
 		if (cardIds.length > 0) {
@@ -113,7 +114,21 @@ export class AnkiView extends ItemView {
 				}
 
 				if (data.result) {
-					allCards.push(...data.result);
+					// Filter out null/empty results and track which cards weren't found
+					const foundCardIds = new Set<number>();
+					for (const card of data.result) {
+						if (card && card.cardId) {
+							allCards.push(card);
+							foundCardIds.add(card.cardId);
+						}
+					}
+
+					// Identify cards that weren't found
+					for (const cardId of cardIds) {
+						if (!foundCardIds.has(cardId)) {
+							notFoundCardIds.push(cardId);
+						}
+					}
 				}
 			} catch (error) {
 				const errorMessage = error instanceof Error ? error.message : String(error);
@@ -127,8 +142,8 @@ export class AnkiView extends ItemView {
 		// For now, we'll skip notes and focus on cards
 		// TODO: Handle note IDs by getting their cards
 
-		// Render the cards
-		this.renderCards(allCards);
+		// Render the cards with info about not found cards
+		this.renderCards(allCards, notFoundCardIds.length);
 	}
 
 	renderPlaceholder(message: string) {
@@ -141,13 +156,13 @@ export class AnkiView extends ItemView {
 		});
 	}
 
-	renderCards(cards: AnkiCard[]) {
+	renderCards(cards: AnkiCard[], notFoundCount: number) {
 		if (!this.cardsContainer) return;
 
 		// Clear existing cards
 		this.cardsContainer.empty();
 
-		if (cards.length === 0) {
+		if (cards.length === 0 && notFoundCount === 0) {
 			this.cardsContainer.createEl("p", { text: "No cards found" });
 			return;
 		}
@@ -175,6 +190,17 @@ export class AnkiView extends ItemView {
 				if (index < sortedFields.length - 1) {
 					fieldEl.createEl("hr", { cls: "anki-card-field-separator" });
 				}
+			});
+		}
+
+		// Show message if some cards weren't found
+		if (notFoundCount > 0) {
+			const notFoundText = notFoundCount === 1
+				? "Could not find 1 card."
+				: `Could not find ${notFoundCount} cards.`;
+			this.cardsContainer.createEl("div", {
+				text: notFoundText,
+				cls: "anki-not-found-message"
 			});
 		}
 	}
