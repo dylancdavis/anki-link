@@ -15,6 +15,10 @@ export class AnkiView extends ItemView {
 		return "View Anki cards";
 	}
 
+	getIcon() {
+		return "layers";
+	}
+
 	async onOpen() {
 		const container = this.containerEl.children[1];
 		container.empty();
