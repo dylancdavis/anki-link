@@ -12,13 +12,13 @@ export class AnkiView extends ItemView {
 	}
 
 	getDisplayText() {
-		return "Anki Cards";
+		return "View Anki cards";
 	}
 
 	async onOpen() {
 		const container = this.containerEl.children[1];
 		container.empty();
-		container.createEl("h4", { text: "Anki Cards" });
+		container.createEl("h4", { text: "Anki cards" });
 		container.createEl("p", { text: "This view will display Anki cards linked to the current note." });
 	}
 
